@@ -1,0 +1,160 @@
+<!--
+// Module:      Convolution
+//
+// Description: Exercise of event architecture, ES6, design patterns and convolution
+//
+// Notes:       Not sure why I am wasting time with old outdated windows bitmap format.
+//
+// Author: C.T. Yeung
+//
+// Date: 29Dec16
+//
+// 06Jan16 - working on bmp decoder; convolution w/ multiple kernels.
+// 08Jan16 - 24bpp Windows bitmap load, render-canvas ok.
+//
+// Copyright (c) 2016 MSSE Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file. See the AUTHORS file for names of contributors.
+-->
+<!DOCTYPE html>
+<html class="no-js gr__"><!--<![endif]--><head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Convolution</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="default.css">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    </head>
+    <body data-gr-c-s-loaded="true">
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- progress -->
+        <div id="myProgress">
+            <div id="myBar" style="width: 100%;"></div>
+        </div>
+
+        <!-- image loaded -->
+        <div class="divImage">
+            <canvas id="canvas0" width="500" ,="" height="500"></canvas>
+            <canvas id="canvas1" width="500" ,="" height="500"></canvas>
+        </div>
+        
+        <!-- image information -->        
+        <div class="divAttr">
+            
+        </div>
+        
+        <!-- convolution -->
+        <div class="divConvolve">
+            <!-- kernel -->
+            
+        </div>
+                
+        
+        
+        
+        <script src="jquery-3.1.1.js"></script>
+        <script src="ErrorLog.js"></script>
+        <script src="Event.js"></script>
+        <script src="BitmapView.js"></script>
+        <script src="KernelView.js"></script>
+        <script src="WindowsBitmap.js"></script>
+        <script src="Image.js"></script>
+        <script src="Model.js"></script>
+        <script src="Kernel.js"></script>
+        <script src="ConvolutionFilter.js"></script>
+
+        <script>
+            
+            $(document).ready(function() {
+                
+                // instantiate class objects
+                let errorLog = new ErrorLog();
+                var canvasList = [];
+                canvasList[0] = document.getElementById("canvas0");
+                canvasList[1] = document.getElementById("canvas1");
+                let model = new Model(canvasList);
+                
+                $("#myBar").css("width", (0+"%"));
+
+                
+                // will add control for file browse.
+                var xhr = model.openBinaryFile("lena.bmp", 0);
+                    
+                /*
+                 * binary file load successfully, decode bmp data
+                 */
+                function OnLoadHandler(msg,     // event type
+                                       event) { // actual event and content
+                    
+                    switch(msg.type)
+                    {
+                        case Event.MSG_JSON_FILE_LOADED:
+                            if(model.marshalJSON(event.data))
+                            {
+                                // set up kernel and configurations
+                            }
+                            break;
+                        
+                        case Event.MSG_BINARY_FILE_LOADED:
+                            // go render it !
+                            if(model.marshalBinary(event.data, 0))
+                            {
+                                // perform convolution !
+                                var kernelsContainer = new KernelsContainer();
+                                kernelsContainer.createDefault();
+                                
+                                var convolution = new ConvolutionFilter(kernelsContainer);
+                                var imageList = model.imageList;
+                                var src = imageList[0];
+                                var des = imageList[1];
+                                convolution.apply(src, des);
+                            }
+                            break;
+                    }
+                    
+                }
+                
+                /*
+                 * load progress update
+                 */
+                function OnProgressHandler(msg,     // event type
+                                           event) { // actual event and content
+                    if(event)
+                    {
+                        var percent = event.data.loaded / event.data.total * 100;
+                        $("#myBar").css("width", (percent+"%"));
+                    }
+                }
+                
+                /*
+                 * known error occurred
+                 */
+                function OnErrorHandler(msg,     // event type
+                                        event) { // actual event and content
+                    errorLog.push(event.data, event.classFunction, event.lineNumber);
+                }
+                
+                /*
+                 * unexpected error occurred
+                 */
+                window.onerror = function (errorMsg,     // error message
+                                           url,          // url or class::method() detail
+                                           lineNumber) { // line number detail
+                    errorLog.push(errorMsg, url, lineNumber);
+                }
+                
+                // Event listeners
+                $(document).bind(Event.MSG_JSON_FILE_LOADED, OnLoadHandler); 
+                $(document).bind(Event.MSG_BINARY_FILE_LOADED, OnLoadHandler); 
+                $(document).bind(Event.MSG_PROGRESS, OnProgressHandler); 
+                $(document).bind(Event.MSG_ERROR, OnErrorHandler);
+            });
+            
+        </script>
+    
+
+</body></html>
