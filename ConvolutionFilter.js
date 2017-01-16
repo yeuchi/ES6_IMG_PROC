@@ -29,20 +29,16 @@
  */
 class ConvolutionFilter extends EventBase {
 
-    constructor(kernelsContainer)
+    constructor()
     {
         super();
-        this._kernelsContainer = kernelsContainer; // support many kernels for transition effects
     }
     
-    static get TYPE_GLOBAL() { return "TYPE_GLOBAL"; }  // 1 kernel
-    static get TYPE_RADIAL() { return "TYPE_RADIAL"; }  // 2 kernels
-    static get TYPE_PLANE() { return "TYPE_PLANE"; }    // 3 kernels
-    
-    apply(src,  // image pixels source
-          des)  // image pixels destination
+    apply(src,      // image pixels source
+          des,      // image pixels destination
+          kernel)   // 1 global kernel to apply
     {
-        var half = Math.floor(this._kernelsContainer.kernelWidth/2.0);
+        var half = Math.floor(kernel.width/2.0);
         var height = src.height - half;
         var width = src.width - half;
         
@@ -51,8 +47,6 @@ class ConvolutionFilter extends EventBase {
         {
             for(var xx=half; xx<width; xx++)
             {
-                var kernel = this.calKernel({x:xx, y:yy});
-                
                 // iterate kernel over image
                 var integral = {R:0, G:0, B:0};
                 var start = -half;
@@ -78,6 +72,37 @@ class ConvolutionFilter extends EventBase {
         }
         des.updateCanvas();
     }
+}
+
+/*
+ * Module:      CustomMultiKernelFilter
+ *
+ * Description: Perform convolution on raster pictorial image
+*       
+ * Notes:       We are not limited to blur or sharpen (for example: derivative transition to normal).
+ *              This is a good candidate for a library of tweening effect filters.
+ *              Focus on Web (small) and not massive commercial, print, medical or astronomical images.
+ *
+ * Experiment:  Allow user to input N kernels and specify their cartesian coordinates.
+ *              - interpolate kernels in between for smooth transitions.
+ *
+ * Author(s):   C.T. Yeung
+ *
+ * Date:        16Jan16
+ *             
+ * Copyright (c) 2016 MSSE Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. See the AUTHORS file for names of contributors.
+ */
+class CustomMultiKernelFilter extends ConvolutionFilter
+{
+    constructor()
+    {
+        
+    }
+    
+    static get TYPE_RADIAL() { return "TYPE_RADIAL"; }  // 2 kernels
+    static get TYPE_PLANE() { return "TYPE_PLANE"; }    // 3 kernels
     
     /*
      * Dynamic calculation of transition kernel if multiple kernels exist.
@@ -101,6 +126,30 @@ class ConvolutionFilter extends EventBase {
             return this.calPlane(point);
        }
     }
+}
+
+/*
+ * Module:      BokehFilter
+ *
+ * Description: 2 kernels.
+ *              - kernel #1 is center of Bokeh
+ *              - kernel #1->#3 mark area of increasing blur
+ *                (may want to define the transition with a curve?)
+ *                
+ * Author(s):   C.T. Yeung
+ *
+ * Date:        16Jan16
+ *             
+ * Copyright (c) 2016 MSSE Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. See the AUTHORS file for names of contributors.
+ */
+class BokehFilter extends ConvolutionFilter
+{
+    constructor()
+    {
+        
+    }
     
     /*
      * 2 kernels -- assume a radial effect
@@ -109,14 +158,14 @@ class ConvolutionFilter extends EventBase {
     {
         // cache distance here
         if(typeof this._disCircle === 'undefined' || null==this._disCircle)
-            this._disCircle = this._kernelsContainer.distanceFromIndexes(0,1);
+            this._disCircle = this.distanceFromIndexes(0,1);
             
         // cache kernel0
         if(typeof this._ptCenter === 'undefined' || null==this._ptCenter)
             this._ptCenter = this._kernelsContainer.retrieveAt(0).position;
     
         // calculate distance (x,y) from kernel0
-        var dis = this._kernelsContainer.distanceFromPoint(0, point)
+        var dis = this.distanceFromPoint(0, point)
         
         switch(dis)
         {
@@ -128,6 +177,53 @@ class ConvolutionFilter extends EventBase {
 
         // point inside circle -- interpolate kernel
         return this._kernelsContainer.retrieveAt(0);
+    }
+    
+    distanceFromIndexes(index0, index1)
+    {
+        var kernel0 = this._list[index0];
+        var kernel1 = this._list[index1];
+        
+        var xx = kernel0.position.x - kernel1.position.x;
+        var yy = kernel0.position.y - kernel1.position.y;
+        var dis = Math.sqrt(xx * xx + yy - yy);
+        return dis;
+    }
+    
+    distanceFromPoint(index0, point)
+    {
+        var kernel0 = this._list[index0];
+        
+        var xx = point.x - kernel0.position.x;
+        var yy = point.y - kernel0.position.y;
+        var dis = Math.sqrt(xx * xx + yy - yy);
+        return dis;
+    }
+}
+
+/*
+ * Module:      ScheimpflugFilter
+ *
+ * Description: Scheimpflug principle defines in focus plane by
+ *              intersection of 3 planes (subject, lens, image).
+ *              This is selective filtering by plane selection
+ *
+ *              Kernels #1 + #2 define a plane.
+ *              Kernel #3 define another axis.
+ *                
+ * Author(s):   C.T. Yeung
+ *
+ * Date:        16Jan16
+ *             
+ * Copyright (c) 2016 MSSE Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. See the AUTHORS file for names of contributors.
+ */
+class ScheimpflugFilter extends ConvolutionFilter
+{
+    constructor()
+    {
+        
     }
     
     /*

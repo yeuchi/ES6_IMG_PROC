@@ -31,12 +31,25 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- progress -->
+        <!-- progress *** why not use chrome progress line ? *** -->
         <div id="myProgress">
             <div id="myBar" style="width: 100%;"></div>
         </div>
 
         <!-- image loaded -->
+        <div class="divAttributes">
+                <!--
+                <select class="combo">
+                <option value="Blur">rect</option>
+                <option value="Sharpen">sharpen</option>
+                <option value="Custom">custom</option>
+                <option value="Bokeh">bokeh</option>
+                <option value="Scheimpflug">plane</option>
+                <option value="MultiKernels">many</option>
+                -->
+            </select>
+        </div>
+        
         <div class="divImage">
             <canvas id="canvas0" width="500" ,="" height="500"></canvas>
             <canvas id="canvas1" width="500" ,="" height="500"></canvas>
@@ -53,14 +66,12 @@
             
         </div>
                 
-        
-        
-        
         <script src="jquery-3.1.1.js"></script>
         <script src="ErrorLog.js"></script>
         <script src="Event.js"></script>
         <script src="BitmapView.js"></script>
         <script src="KernelView.js"></script>
+        <script src="ComboView.js"></script>
         <script src="WindowsBitmap.js"></script>
         <script src="Image.js"></script>
         <script src="Model.js"></script>
@@ -73,10 +84,20 @@
                 
                 // instantiate class objects
                 let errorLog = new ErrorLog();
+                
+                // create combo box
+                var optionList = [OptionEnum.TYPE_BLUR,
+                                  OptionEnum.TYPE_SHARPEN,
+                                  OptionEnum.TYPE_BOKEH];
+                let comboView = new ComboView("divAttr", optionList);
+                
+                // model + load image
                 var canvasList = [];
                 canvasList[0] = document.getElementById("canvas0");
                 canvasList[1] = document.getElementById("canvas1");
                 let model = new Model(canvasList);
+                
+                
                 
                 $("#myBar").css("width", (0+"%"));
 
@@ -103,15 +124,12 @@
                             // go render it !
                             if(model.marshalBinary(event.data, 0))
                             {
-                                // perform convolution !
-                                var kernelsContainer = new KernelsContainer();
-                                kernelsContainer.createDefault();
-                                
-                                var convolution = new ConvolutionFilter(kernelsContainer);
+                                var kernel = KernelFactory.create(KernelEnum.TYPE_RECT, 5);
+                                var convolution = new ConvolutionFilter();
                                 var imageList = model.imageList;
                                 var src = imageList[0];
                                 var des = imageList[1];
-                                convolution.apply(src, des);
+                                convolution.apply(src, des, kernel);
                             }
                             break;
                     }
