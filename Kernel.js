@@ -199,14 +199,17 @@ class BokehKernel extends SuperKernel
     {
         // for now with only bokeh, don't worry about topology, RECT function
         this._cachedValues = [];
-        var count = Math.floor(width/2)+1;
-        for(var i=1; i<count; i++)
+        for(var i=1; i<width; i++)
         {
-            var kernelValues = [];
-            for(var y=0; y<i*i; y++)
-                kernelValues.push(1);
-                
-            this._cachedValues.push(kernelValues);
+            if(i%2==1)
+            {
+                var kernelValues = [];
+    
+                for(var y=0; y<i*i; y++)
+                    kernelValues.push(1);
+                    
+                this._cachedValues.push(kernelValues);
+            }
         }
     }
     
