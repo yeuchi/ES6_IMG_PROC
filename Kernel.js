@@ -21,6 +21,7 @@ class KernelEnum
     static TYPE_GUASSIAN() {return "TYPE_GUASSIAN";}
     static TYPE_SHARPEN() {return "TYPE_SHARPEN";}
     static TYPE_IDENTITY() {return "TYPE_IDENTITY";}
+    static TYPE_BOKEH() {return "TYPE_BOKEH";}
 }
 
 /*
@@ -96,7 +97,10 @@ class BlurKernel extends Kernel
 }
 
 /*
- * A lapacian 3x3 sharpening kernel
+ * A lapacian 3x3 sharpening kernel + identity
+ *
+ * - should have a multiplier to adjust the lapacian result before adding to identity.
+ * - ( or is that only unsharpmask )
  */
 class SharpenKernel extends Kernel
 {
@@ -126,8 +130,7 @@ class SharpenKernel extends Kernel
 class SuperKernel extends Kernel
 {
     constructor(width,          // width of the kernel
-                point,          // cartesian coordinates of this kernel applied on image
-                transitionStep) // from kernel to identity, steps in percent represent the number of cached kernels.
+                point)          // cartesian coordinates of this kernel applied on image
     {
         super();
         
@@ -136,24 +139,19 @@ class SuperKernel extends Kernel
             
         this._point = point;    // try cartesian to start (may use polar for radial)
         
-        this._transitionStep = (typeof transitionStep != "undefined" && null != transitionStep) ? transitionStep:0;
         if(width>1)
-            this.createTransitionKernels();        
+            this.createTransitionKernels(width);        
     }
     
     /*
      * Create and cache all kernels we will need to process the image
      */
-    createTransitionKernels()
+    createTransitionKernels(width)
     {
-        this._kernelCache = [];
-        for(var i=0; i<this._transitionStep; i++)
-        {
-            // create transition kernels to identity
-            
-            // record shape (topology) -> linear interpolation.
-            // reduce in width until we reach identity.
-        }
+        this._cachedKernels = [];
+        // record shape (topology) -> linear interpolation... if custom
+        // reduce in width until we reach identity.
+        // incomplete here
     }
     
     get position()
@@ -165,6 +163,70 @@ class SuperKernel extends Kernel
     {
         this._point = point;
     }
+    
+    set transition(index)
+    {
+    }
+}
+
+/*
+ * Module:      BokehKernel
+ *
+ * Description: A colection of RECT functions with cartesian coordinates.
+ *
+ * Author(s):   C.T. Yeung
+ *
+ * Date:        05Jan16
+ * 
+ * Copyright (c) 2016 MSSE Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. See the AUTHORS file for names of contributors.
+ */
+class BokehKernel extends SuperKernel
+{
+    constructor(width,          // width of the kernel
+                point)          // cartesian coordinates of this kernel applied on image
+    {
+        super();
+        this._point = point;    // try cartesian to start (may use polar for radial)
+        this.createTransitionKernels(width);
+    }
+    
+    /*
+     * Create and cache all kernels we will need to process the image
+     */
+    createTransitionKernels(width)
+    {
+        // for now with only bokeh, don't worry about topology, RECT function
+        this._cachedValues = [];
+        var count = Math.floor(width/2)+1;
+        for(var i=1; i<count; i++)
+        {
+            var kernelValues = [];
+            for(var y=0; y<i*i; y++)
+                kernelValues.push(1);
+                
+            this._cachedValues.push(kernelValues);
+        }
+    }
+    
+    /*
+     * Need to set all the attributes..
+     */
+    set transition(index)
+    {
+        if(this._cachedValues && this._cachedValues.length)
+        {
+            var i = (index < this._cachedValues.length)?index:this._cachedValues.length-1;
+            this._values = this._cachedValues[i];
+            this._divider = this._values.length;
+        }
+    }
+    
+    get cacheCount()
+    {
+        return this._cachedValues.length;
+    }
 }
 
 /*
@@ -173,7 +235,15 @@ class SuperKernel extends Kernel
  * Description: Software design Factory pattern.
  *              - Create kernel of types (sobel, blur, guassian, sharpen, custom, etc)
  *
- * Note:        User will be able to select kernel types from Kernel view; generate them here.           
+ * Note:        User will be able to select kernel types from Kernel view; generate them here.
+ *
+ * Author(s):   C.T. Yeung
+ *
+ * Date:        05Jan16
+ * 
+ * Copyright (c) 2016 MSSE Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. See the AUTHORS file for names of contributors.
  */
 class KernelFactory
 {
@@ -181,8 +251,12 @@ class KernelFactory
     {
     }
     
+    /*
+     * Build and return kernel
+     */
     static create(type,     // kernel type
-                  width)    // kernel width
+                  width,    // kernel width
+                  pos)      // cartesian coordinates (x,y) 
     {
         var kernel = null;
         switch(type)
@@ -202,6 +276,10 @@ class KernelFactory
             
             case KernelEnum.TYPE_SHARPEN:
                 kernel = new SharpenKernel(width);
+                break;
+            
+            case KernelEnum.TYPE_BOKEH:
+                kernel = new BokehKernel(width, pos);
                 break;
             
             case KernelEnum.TYPE_IDENTITY:

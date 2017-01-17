@@ -124,11 +124,11 @@
                             // go render it !
                             if(model.marshalBinary(event.data, 0))
                             {
-                                applyConvolutionFilter(KernelEnum.TYPE_RECT, 5);
+                                // use default filter + kernel
+                                applyFilter(FilterEnum.TYPE_CONVOLUTION, KernelEnum.TYPE_RECT, 5);
                             }
                             break;
                     }
-                    
                 }
                 
                 /*
@@ -136,34 +136,45 @@
                  */
                 function OnChangeFilterHandler( msg,     // event type
                                                 event) { // actual event and content
-                        var kernelType = OptionEnum.mapKernelEnum(event.data);
+                    var kernelType = OptionEnum.mapKernelEnum(event.data);
+                    var kernelWidth = 5;
+                    var filterType = null;
+                    
+                    // temporary selection method
+                    switch(kernelType)
+                    {
+                        case null:
+                            filterType = FilterEnum.TYPE_BOKEH;
+                            kernelType = KernelEnum.TYPE_BOKEH;
+                            kernelWidth = 11;
+                            break;
                         
-                        // temporary selection method
-                        if(null == kernelType)
-                           applyBokehFilter();
-                           
-                        else
-                           applyConvolutionFilter(kernelType, 5);
-
+                        default:
+                            filterType = FilterEnum.TYPE_CONVOLUTION;
+                            kernelWidth = 5;
+                            break;
+                    }
+                    applyFilter(filterType, kernelType, kernelWidth);
                 }
                 
-                function applyConvolutionFilter(kernelType,   // see KernelEnum class
-                                                kernelWidth)  // width or height
+                function applyFilter(filterType,        // see FilterEnum class
+                                     kernelType,        // see KernelEnum class
+                                     kernelWidth)       // width or height
                 {
-                        var kernel = KernelFactory.create(kernelType, kernelWidth);
-                        if(kernel)
-                        {
-                                var convolution = new ConvolutionFilter();
-                                var imageList = model.imageList;
-                                var src = imageList[0];
-                                var des = imageList[1];
-                                convolution.apply(src, des, kernel);
-                        }
-                }
+                    var canvas = canvasList[0];
+                    
+                    // at some point, open it up for user to select position instead of center
+                    var center = {x:canvas.width/2, y:canvas.height/2};
+                    var kernel = KernelFactory.create(kernelType, kernelWidth, center);
+                    var filter = FilterFactory.create(filterType);
                 
-                function applyBokehFilter()
-                {
-                
+                    if(kernel && filter)
+                    { 
+                        var imageList = model.imageList;
+                        var src = imageList[0];
+                        var des = imageList[1];
+                        filter.apply(src, des, kernel);
+                    }
                 }
                 
                 /*
