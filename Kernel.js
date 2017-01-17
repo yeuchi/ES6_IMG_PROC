@@ -20,6 +20,7 @@ class KernelEnum
     static TYPE_SOBEL_Y() {return "TYPE_SOBEL_Y";}
     static TYPE_GUASSIAN() {return "TYPE_GUASSIAN";}
     static TYPE_SHARPEN() {return "TYPE_SHARPEN";}
+    static TYPE_LAPLACIAN() {return "TYPE_LAPLACIAN";}
     static TYPE_IDENTITY() {return "TYPE_IDENTITY";}
     static TYPE_BOKEH() {return "TYPE_BOKEH";}
 }
@@ -97,7 +98,20 @@ class BlurKernel extends Kernel
 }
 
 /*
- * A lapacian 3x3 sharpening kernel + identity
+ * A laplacian 3x3 sharpening kernel 
+ */
+class LaplacianKernel extends Kernel
+{
+    constructor()
+    {
+        super(3);
+        this._values = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
+        this._divider = 1;
+    }
+}
+
+/*
+ * A laplacian 3x3 sharpening kernel + identity
  *
  * - should have a multiplier to adjust the lapacian result before adding to identity.
  * - ( or is that only unsharpmask )
@@ -280,6 +294,11 @@ class KernelFactory
             case KernelEnum.TYPE_SHARPEN:
                 kernel = new SharpenKernel(width);
                 break;
+            
+            case KernelEnum.TYPE_LAPLACIAN:
+                kernel = new LaplacianKernel();
+                break;
+            
             
             case KernelEnum.TYPE_BOKEH:
                 kernel = new BokehKernel(width, pos);

@@ -59,7 +59,7 @@ class ConvolutionFilter extends EventBase {
     apply(src,      // image pixels source
           des,      // image pixels destination
           kernel)   // 1 global kernel to apply
-    {
+    {        
         var half = Math.floor(kernel.width/2.0);
         var height = src.height - half;
         var width = src.width - half;

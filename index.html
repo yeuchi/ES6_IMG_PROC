@@ -50,6 +50,12 @@
             </select>
         </div>
         
+        <!-- file selection -->
+        <div class="divBrowse">
+                <input type="file" id="files" name="files[]" />
+                <output id="list"></output>
+        </div>
+        
         <div class="divImage">
             <canvas id="canvas0" width="500" ,="" height="500"></canvas>
             <canvas id="canvas1" width="500" ,="" height="500"></canvas>
@@ -57,7 +63,7 @@
         
         <!-- image information -->        
         <div class="divAttr">
-            
+                  
         </div>
         
         <!-- convolution -->
@@ -69,6 +75,7 @@
         <script src="jquery-3.1.1.js"></script>
         <script src="ErrorLog.js"></script>
         <script src="Event.js"></script>
+        <script src="BrowseControl.js"></script>
         <script src="BitmapView.js"></script>
         <script src="KernelView.js"></script>
         <script src="ComboView.js"></script>
@@ -87,23 +94,22 @@
                 
                 // create combo box
                 var optionList = [OptionEnum.TYPE_BLUR,
+                                  OptionEnum.TYPE_LAPLACIAN,
                                   OptionEnum.TYPE_SHARPEN,
                                   OptionEnum.TYPE_BOKEH];
-                let comboView = new ComboView("divAttr", optionList);
+                let comboView = new ComboView("divBrowse", optionList);
                 
                 // model + load image
                 var canvasList = [];
                 canvasList[0] = document.getElementById("canvas0");
                 canvasList[1] = document.getElementById("canvas1");
                 let model = new Model(canvasList);
-                
-                
-                
                 $("#myBar").css("width", (0+"%"));
 
-                
-                // will add control for file browse.
-                var xhr = model.openBinaryFile("lena.bmp", 0);
+                // Load from file
+                let browse = new BrowseControl("#files");
+                var defaultFile = "bmp/lena.bmp";
+                var xhr = model.openBinaryFile(defaultFile, 0);
                     
                 /*
                  * binary file load successfully, decode bmp data
@@ -146,7 +152,7 @@
                         case null:
                             filterType = FilterEnum.TYPE_BOKEH;
                             kernelType = KernelEnum.TYPE_BOKEH;
-                            kernelWidth = 17;
+                            kernelWidth = 25;
                             break;
                         
                         default:
@@ -161,18 +167,19 @@
                                      kernelType,        // see KernelEnum class
                                      kernelWidth)       // width or height
                 {
-                    var canvas = canvasList[0];
-                    
+                    var imageList = model.imageList;
+                    var src = imageList[0];
+                    var des = imageList[1];
+                        
                     // at some point, open it up for user to select position instead of center
-                    var center = {x:canvas.width/2, y:canvas.height/2};
+                    var center = {x:src.width/2+60, y:src.height/2+20};
                     var kernel = KernelFactory.create(kernelType, kernelWidth, center);
                     var filter = FilterFactory.create(filterType);
                 
                     if(kernel && filter)
                     { 
-                        var imageList = model.imageList;
-                        var src = imageList[0];
-                        var des = imageList[1];
+                        if(filterType == FilterEnum.TYPE_BOKEH)
+                        des.clear();
                         filter.apply(src, des, kernel);
                     }
                 }

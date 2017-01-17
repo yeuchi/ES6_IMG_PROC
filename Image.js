@@ -42,6 +42,11 @@ class Image
             this._imageData = this._context.getImageData(0,0,this._canvas.width, this._canvas.height);
     }
     
+    clear()
+    {
+        this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    }
+    
     decode(bytes)
     {
         if(WindowsBitmap.hasBM(bytes))

@@ -104,6 +104,7 @@ class Model extends EventBase {
   marshalBinary(bytes,      // raw data loaded from file
                 index)      // image index
   {
+    this._images[index].clear();
     return this._images[index].decode(bytes);
   }
   

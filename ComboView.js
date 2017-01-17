@@ -19,6 +19,7 @@ class OptionEnum
     
     static get TYPE_BLUR() {return "BLUR";}
     static get TYPE_SHARPEN() {return "SHARPEN";}
+    static get TYPE_LAPLACIAN() {return "LAPLACIAN";}
     static get TYPE_CUSTOM() {return "CUSTOM";}
     static get TYPE_BOKEH() {return "BOKEH";}
     static get TYPE_SCHEIMPFLUG() {return "SCHEIMPFLUG";}
@@ -37,6 +38,9 @@ class OptionEnum
             
             case OptionEnum.TYPE_SHARPEN:
                 return KernelEnum.TYPE_SHARPEN;
+            
+            case OptionEnum.TYPE_LAPLACIAN:
+                return KernelEnum.TYPE_LAPLACIAN;
             
             // add custom and others ...
         }
