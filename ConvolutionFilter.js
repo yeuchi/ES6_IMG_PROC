@@ -204,7 +204,7 @@ class BokehFilter extends ConvolutionFilter
     {
         var xx = point.x - kernel.position.x;
         var yy = point.y - kernel.position.y;
-        var dis = Math.sqrt(xx * xx + yy - yy);
+        var dis = Math.sqrt(xx * xx + yy * yy);
         return dis;
     }
 }
