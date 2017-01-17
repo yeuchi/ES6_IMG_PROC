@@ -124,16 +124,46 @@
                             // go render it !
                             if(model.marshalBinary(event.data, 0))
                             {
-                                var kernel = KernelFactory.create(KernelEnum.TYPE_RECT, 5);
+                                applyConvolutionFilter(KernelEnum.TYPE_RECT, 5);
+                            }
+                            break;
+                    }
+                    
+                }
+                
+                /*
+                 * Combo box Filter selection changed
+                 */
+                function OnChangeFilterHandler( msg,     // event type
+                                                event) { // actual event and content
+                        var kernelType = OptionEnum.mapKernelEnum(event.data);
+                        
+                        // temporary selection method
+                        if(null == kernelType)
+                           applyBokehFilter();
+                           
+                        else
+                           applyConvolutionFilter(kernelType, 5);
+
+                }
+                
+                function applyConvolutionFilter(kernelType,   // see KernelEnum class
+                                                kernelWidth)  // width or height
+                {
+                        var kernel = KernelFactory.create(kernelType, kernelWidth);
+                        if(kernel)
+                        {
                                 var convolution = new ConvolutionFilter();
                                 var imageList = model.imageList;
                                 var src = imageList[0];
                                 var des = imageList[1];
                                 convolution.apply(src, des, kernel);
-                            }
-                            break;
-                    }
-                    
+                        }
+                }
+                
+                function applyBokehFilter()
+                {
+                
                 }
                 
                 /*
@@ -169,6 +199,7 @@
                 $(document).bind(Event.MSG_JSON_FILE_LOADED, OnLoadHandler); 
                 $(document).bind(Event.MSG_BINARY_FILE_LOADED, OnLoadHandler); 
                 $(document).bind(Event.MSG_PROGRESS, OnProgressHandler); 
+                $(document).bind(Event.MSG_FILTER_CHANGE, OnChangeFilterHandler); 
                 $(document).bind(Event.MSG_ERROR, OnErrorHandler);
             });
             

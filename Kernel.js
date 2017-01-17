@@ -102,7 +102,7 @@ class SharpenKernel extends Kernel
 {
     constructor()
     {
-        super(width);
+        super(3);
         this._values = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
         this._divider = 1;
     }
@@ -189,7 +189,7 @@ class KernelFactory
         {
             case KernelEnum.TYPE_RECT:
                 kernel = new BlurKernel(width);
-                return kernel;
+                break;
             
             case KernelEnum.TYPE_SOBEL_X:
                 break;
@@ -206,8 +206,8 @@ class KernelFactory
             
             case KernelEnum.TYPE_IDENTITY:
                 kernel = new Kernel(width);
-                return kernel;
+                break;
         }
-        return null;
+        return kernel;
     }
 }

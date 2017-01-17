@@ -1,9 +1,6 @@
-class OptionEnum extends EventBase
+class OptionEnum 
 {
-    constructor()
-    {
-        super();
-    }
+    constructor(){ }
     
     static get TYPE_BLUR() {return "BLUR";}
     static get TYPE_SHARPEN() {return "SHARPEN";}
@@ -11,12 +8,26 @@ class OptionEnum extends EventBase
     static get TYPE_BOKEH() {return "BOKEH";}
     static get TYPE_SCHEIMPFLUG() {return "SCHEIMPFLUG";}
     static get TYPE_MANY() {return "MANY";}
+    
+    static mapKernelEnum(optionEnum)
+    {
+        switch(optionEnum)
+        {
+            case OptionEnum.TYPE_BLUR:
+                return KernelEnum.TYPE_RECT;
+            
+            case OptionEnum.TYPE_SHARPEN:
+                return KernelEnum.TYPE_SHARPEN;
+        }
+        return null;
+    }
 }
 
-class ComboView
+class ComboView extends EventBase
 {
     constructor(parentElement, options)
     {
+        super();
         this._parentElement = $("."+parentElement);
         this.createElement();
         this.initListeners();
@@ -50,6 +61,7 @@ class ComboView
     
     onChangeHandler(e)
     {
-        
+        var filterType = e.target.value;
+        super.dispatch(Event.MSG_FILTER_CHANGE, filterType, "ComboView::onChangeHandler()", 53);
     }
 }

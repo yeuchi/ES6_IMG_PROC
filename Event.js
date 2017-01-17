@@ -23,6 +23,7 @@ class Event {
   static get MSG_BINARY_FILE_LOADED() {return "MSG_BINARY_FILE_LOADED";}
   static get MSG_JSON_FILE_LOADED() {return "MSG_JSON_FILE_LOADED";}
   static get MSG_PROGRESS() {return "MSG_PROGRESS";}
+  static get MSG_FILTER_CHANGE() {return "MSG_FILTER_CHANGE";}
   static get MSG_ERROR() {return "MSG_ERROR";}
   
   setContent(eventType,
