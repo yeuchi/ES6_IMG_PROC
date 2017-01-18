@@ -26,6 +26,12 @@ class Model extends EventBase {
     }
   }
   
+  clear()
+  {
+    for(var i=0; i<this._images.length; i++)
+      this._images[i].clear();
+  }
+  
   get imageList()
   {
     return this._images;

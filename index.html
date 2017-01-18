@@ -127,6 +127,9 @@
                             break;
                         
                         case Event.MSG_BINARY_FILE_LOADED:
+                            // clear all images 
+                            model.clear();
+                            
                             // go render it !
                             if(model.marshalBinary(event.data, 0))
                             {
@@ -178,8 +181,6 @@
                 
                     if(kernel && filter)
                     { 
-                        if(filterType == FilterEnum.TYPE_BOKEH)
-                        des.clear();
                         filter.apply(src, des, kernel);
                     }
                 }

@@ -45,6 +45,7 @@ class Image
     clear()
     {
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        this.initContextData(this._canvas);
     }
     
     decode(bytes)
