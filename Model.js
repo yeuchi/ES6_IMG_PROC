@@ -19,22 +19,22 @@ class Model extends EventBase {
   {
     super();
     this._jsonFilePath = "filePath";
-    this._images = [];
+    this._canvasers = [];
     for(var i=0; i<canvasList.length; i++)
     {
-      this._images[i] = new Image(canvasList[i]);
+      this._canvasers[i] = new Canvaser(canvasList[i]);
     }
   }
   
   clear()
   {
-    for(var i=0; i<this._images.length; i++)
-      this._images[i].clear();
+    for(var i=0; i<this._canvasers.length; i++)
+      this._canvasers[i].clear();
   }
   
-  get imageList()
+  get canvaserList()
   {
-    return this._images;
+    return this._canvasers;
   }
   
   /*
@@ -65,7 +65,7 @@ class Model extends EventBase {
   openBinaryFile(filePath,  // file path of image
                  index)     // image index
   {
-    this._images[index].filePath = filePath;
+    this._canvasers[index].filePath = filePath;
 
     var xhr;
     xhr = new XMLHttpRequest;
@@ -110,8 +110,8 @@ class Model extends EventBase {
   marshalBinary(bytes,      // raw data loaded from file
                 index)      // image index
   {
-    this._images[index].clear();
-    return this._images[index].decode(bytes);
+    var retVal = Decoder.marshal(bytes, this._canvasers[index]);
+    return retVal;
   }
   
   /*

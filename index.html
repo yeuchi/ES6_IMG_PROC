@@ -80,7 +80,8 @@
         <script src="KernelView.js"></script>
         <script src="ComboView.js"></script>
         <script src="WindowsBitmap.js"></script>
-        <script src="Image.js"></script>
+        <script src="Canvaser.js"></script>
+        <script src="Decoder.js"></script>
         <script src="Model.js"></script>
         <script src="Kernel.js"></script>
         <script src="ConvolutionFilter.js"></script>
@@ -170,9 +171,8 @@
                                      kernelType,        // see KernelEnum class
                                      kernelWidth)       // width or height
                 {
-                    var imageList = model.imageList;
-                    var src = imageList[0];
-                    var des = imageList[1];
+                    var src = model.canvaserList[0];
+                    var des = model.canvaserList[1];
                         
                     // at some point, open it up for user to select position instead of center
                     var center = {x:src.width/2+60, y:src.height/2+20};

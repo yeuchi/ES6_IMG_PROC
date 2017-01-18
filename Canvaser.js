@@ -1,7 +1,7 @@
 /*
- * Module:      Image
+ * Module:      Canvaser
  *
- * Description: Image class which holds bmp or png decoder/encoder
+ * Description: Image class which holds 
  *              - probably too slow for ordinary images... conceptual demonstration only.
  *              - good for Adobe Flash like effect 
  *
@@ -13,22 +13,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file. See the AUTHORS file for names of contributors.
  */
-class Image
+class Canvaser
 {
     constructor(canvas)
     {
         this.initContextData(canvas);
         this._type = null;
         this._filePath = "";
-        this._decoder = null; // the actual decoder class (WindowsBitmap, etc)
     
         this._pixelWidth = -1;
         this._pixelHeight = -1;
         this._bitDepth = -1;
     }
-    
-    static get TYPE_PNG() {return "png";} // not yet supported
-    static get TYPE_BMP() {return "bmp";}
     
     initContextData(canvas)
     {
@@ -48,29 +44,9 @@ class Image
         this.initContextData(this._canvas);
     }
     
-    decode(bytes)
+    get canvas()
     {
-        if(WindowsBitmap.hasBM(bytes))
-        {
-            this._type = this.TYPE_BMP;
-            this._decoder = new WindowsBitmap(this._canvas);
-            var retVal = this._decoder.decode(bytes);
-            if(true==retVal)
-            {
-                this.initContextData();
-                this._pixelWidth = this._decoder.pixelWidth;
-                this._pixelHeight = this._decoder.pixelHeight;
-                this._bitDepth = this._decoder.bitDepth;
-                return true;
-            }
-            return false;
-        }
-        
-        else
-        {
-            // handle png 
-        }
-        return false;
+        return this._canvas;
     }
     
     /*
@@ -130,5 +106,20 @@ class Image
     get bitDepth()
     {
         return this._bitDepth;
+    }
+    
+    set width(num)
+    {
+        this._pixelWidth = num;
+    }
+    
+    set height(num)
+    {
+        this._pixelHeight = num;
+    }
+    
+    set bitDepth(num)
+    {
+        this._bitDepth = num;
     }
 }
