@@ -177,10 +177,6 @@ class SuperKernel extends Kernel
     {
         this._point = point;
     }
-    
-    set transition(index)
-    {
-    }
 }
 
 /*

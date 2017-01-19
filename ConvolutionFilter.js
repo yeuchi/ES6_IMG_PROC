@@ -216,8 +216,8 @@ class BokehFilter extends ConvolutionFilter
  *              intersection of 3 planes (subject, lens, image).
  *              This is selective filtering by plane selection
  *
- *              Kernels #1 + #2 define a plane.
- *              Kernel #3 define another axis.
+ *              Kernels #1 thru N-1 defines plane.
+ *              Last kernel defines the max blur.
  *                
  * Author(s):   C.T. Yeung
  *
@@ -227,19 +227,47 @@ class BokehFilter extends ConvolutionFilter
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file. See the AUTHORS file for names of contributors.
  */
-class ScheimpflugFilter extends ConvolutionFilter
+class ScheimpflugFilter extends BokehFilter
 {
     constructor()
     {
-        
+        super();
     }
     
     /*
-     * 3 kernels -- assume a plane by 1st two points
+     * Find max distance
      */
-    calPlane(point)
+    calMaxDistance(kernel,  // kernel
+                   size)    // canvas size
     {
+        // calculate max distance from line (plane)
         
+        /*
+        var list = [];
+        list.push(this.distance(kernel, {x:0, y:0}));
+        list.push(this.distance(kernel, {x:0, y:size.height}));
+        list.push(this.distance(kernel, {x:size.width, y:0}));
+        list.push(this.distance(kernel, {x:size.width, y:size.height}));
+
+        this._maxDistance = 0;
+        for(var i=0; i<4; i++)
+        {
+            if(list[i]>this._maxDistance)
+                this._maxDistance = list[i];
+        }
+        */
+    }
+    
+    distance(kernel, point)
+    {
+        // calculate distance from line (plane)
+
+        /*
+        var xx = point.x - kernel.position.x;
+        var yy = point.y - kernel.position.y;
+        var dis = Math.sqrt(xx * xx + yy * yy);
+        return dis;
+        */
     }
 }
 
@@ -320,6 +348,10 @@ class FilterFactory
         
         switch(type)
         {
+            case FilterEnum.TYPE_SCHEIMPFLUG:
+                filter = new ScheimpflugFilter();
+                break;
+            
             case FilterEnum.TYPE_BOKEH:
                 filter = new BokehFilter();
                 break;
