@@ -1,9 +1,6 @@
 # ES6_IMG_PROC
 Ecmascript6 exercise: convolution, bokeh, scheimpflug, bmp decoder
 
-This project is writting in an event-driven architecture.
-There are sub-features which should be placed in separate modules, bmp-format decoding + convolution,bokeh,scheimpflug.
-
 Windows bitmap decoder:  Decoder.js, WindowsBitmap.js, Canvaser.js
 
 Decoder - take UT8BinaryArray input and coordinate between WindowsBitmap and output to Canvaser.
