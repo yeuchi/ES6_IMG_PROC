@@ -141,7 +141,8 @@ class BokehFilter extends ConvolutionFilter
                 var integral = {R:0, G:0, B:0};
                 
                 // determine size of filter
-                var index = this.calKernelSize(kernel, {x:xx, y:yy});
+                //var index = this.calKernelSize(kernel, {x:xx, y:yy});
+                this.calKernelSize(kernel, {x:xx, y:yy});
                 var half = Math.floor(kernel.width/2.0);
                 var start = -half;
                 
@@ -181,11 +182,9 @@ class BokehFilter extends ConvolutionFilter
         var d = this.distance(kernel, pos);
         
         // compare with max and index kernel value set
-      //  var numerator = (d>0)?Math.log(d):0;
-        //var index = Math.floor(numerator / Math.log(this._maxDistance) * this._maxIndex);
         var index = Math.floor(d / this._maxDistance * this._maxIndex);
         kernel.transition = index;
-        return index;
+        //return index;
     }
     
     /*
