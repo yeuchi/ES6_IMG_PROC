@@ -1,6 +1,25 @@
 # ES6_IMG_PROC
 Ecmascript6 exercise: convolution, bokeh, scheimpflug, bmp decoder
 
+Use:
+
+// create source and destination canvasers (pass in canvas id in constructor)
+var src = new Canvaser("canvas0");
+var des = new Canvaser("canvas1");
+
+// give a center point (x,y) in pixel unit on the canvas.
+var center = {x:src.width/2+60, y:src.height/2+20};
+
+// create a kernel, see KernelEnum class for types
+// give it a kernel width (example: 3 -- for a 3x3 kernel -- must be odd number)
+var kernel = KernelFactory.create(kernelEnum.TYPE_BOKEH, 21, center);
+
+// create a filter, see FilterEnum class for types
+var filter = FilterFactory.create(FilterEnum.TYPE_CONVOLUTION);
+
+filter.apply(src, des, kernel);
+
+
 #### Windows bitmap decoder:
 Decoder.js, WindowsBitmap.js, Canvaser.js
 

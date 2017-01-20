@@ -228,17 +228,35 @@ class BokehKernel extends SuperKernel
      */
     set transition(index)
     {
-        if(this._cachedValues && this._cachedValues.length)
+        if(index >=0 && index < this._cachedValues.length)
         {
-            var i = (index < this._cachedValues.length)?index:this._cachedValues.length-1;
-            this._values = this._cachedValues[i];
-            this._divider = this._values.length;
+            if(this._cachedValues && this._cachedValues.length>0)
+            {
+                this._values = this._cachedValues[index];
+                this._divider = this._values.length;
+            }
         }
     }
     
     get cacheCount()
     {
         return this._cachedValues.length;
+    }
+    
+    get maxWidth()
+    {
+        if(this._cachedValues && this._cachedValues.length)
+        {
+            var length = 0;
+            this._cachedValues.forEach(function(e){
+                if(length > e.length)
+                    length = e.length;
+            });
+            
+            return (length==0)?0:Math.sqrt(length);
+        }
+
+        return 0;
     }
 }
 
@@ -294,7 +312,6 @@ class KernelFactory
             case KernelEnum.TYPE_LAPLACIAN:
                 kernel = new LaplacianKernel();
                 break;
-            
             
             case KernelEnum.TYPE_BOKEH:
                 kernel = new BokehKernel(width, pos);

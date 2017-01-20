@@ -124,12 +124,13 @@ class BokehFilter extends ConvolutionFilter
           kernel)   // bokeh kernel 
     {
         // need to check on this
-        var Half = Math.floor(kernel.width/2.0);
+        var Half = Math.floor(kernel.maxWidth/2.0);
         var height = src.height - Half;
         var width = src.width - Half;
         
         // calculate max distance
         this.calMaxDistance(kernel, {width:src.width, height:src.height});
+        this._maxIndex = kernel.cacheCount-1;
         
         // iterate image
         for(var yy=Half; yy<height; yy++)
@@ -140,8 +141,7 @@ class BokehFilter extends ConvolutionFilter
                 var integral = {R:0, G:0, B:0};
                 
                 // determine size of filter
-                this.calKernelSize(kernel, {x:xx, y:yy});
-                
+                var index = this.calKernelSize(kernel, {x:xx, y:yy});
                 var half = Math.floor(kernel.width/2.0);
                 var start = -half;
                 
@@ -160,7 +160,13 @@ class BokehFilter extends ConvolutionFilter
                 integral.G /= kernel.divider;
                 integral.B /= kernel.divider;
                 integral.A = 255;
-
+                
+                /*
+                integral.R = index * 20;
+                integral.G = index * 20;
+                integral.B = index * 20;
+                integral.A = 255;
+*/
                 // set destination pixel value
                 des.setPixel(xx,yy, integral);
             }
@@ -175,9 +181,11 @@ class BokehFilter extends ConvolutionFilter
         var d = this.distance(kernel, pos);
         
         // compare with max and index kernel value set
-        var num = Math.round(d / this._maxDistance*kernel.cacheCount);
-        var index = (num<kernel.cacheCount)?num:kernel.cacheCount-1;
+      //  var numerator = (d>0)?Math.log(d):0;
+        //var index = Math.floor(numerator / Math.log(this._maxDistance) * this._maxIndex);
+        var index = Math.floor(d / this._maxDistance * this._maxIndex);
         kernel.transition = index;
+        return index;
     }
     
     /*
@@ -216,8 +224,9 @@ class BokehFilter extends ConvolutionFilter
  *              intersection of 3 planes (subject, lens, image).
  *              This is selective filtering by plane selection
  *
- *              Kernels #1 thru N-1 defines plane.
+ *              Kernels #1 thru #4 defines plane.
  *              Last kernel defines the max blur.
+ *              (maybe allow N points to define a polygon ?)
  *                
  * Author(s):   C.T. Yeung
  *
